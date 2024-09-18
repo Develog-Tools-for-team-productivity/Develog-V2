@@ -1,19 +1,16 @@
 import { auth } from "@/auth";
+import { createGitHubService } from "@/services/githubService";
+import { RepositoryView } from "./RepositoryPage";
+import { Repository } from "@/services/githubService";
 
 export default async function Page() {
   const session = await auth();
+  let repos: Repository[] = [];
 
-  if (session?.user) {
-    session.user = {
-      name: session.user.name,
-      email: session.user.email,
-      image: session.user.image,
-    };
+  if (session?.accessToken) {
+    const githubService = createGitHubService(session.accessToken);
+    repos = await githubService.fetchRepositories();
   }
 
-  return (
-    <main>
-      <p>repository page</p>
-    </main>
-  );
+  return <RepositoryView repos={repos} />;
 }
