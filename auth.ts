@@ -4,6 +4,13 @@ import "next-auth/jwt";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [GitHub],
+  pages: {
+    signIn: "/app",
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 2 * 60 * 60,
+  },
   callbacks: {
     async jwt({ token, trigger, account, user }) {
       if (trigger === "signIn" && account) {
