@@ -1,13 +1,13 @@
 "use client";
 
-import { atom, useAtom } from "jotai";
+import { useAtom } from "jotai";
+import { selectedReposAtom } from "@/store";
 import { MultiSelectBox } from "../ui/multi-selectbox";
 import { Repository } from "@/services/githubService";
 import { useSession } from "next-auth/react";
 import { saveUserData } from "../lib/action";
 import { useState } from "react";
-
-const selectedReposAtom = atom<number[]>([]);
+import Welcome from "../ui/welcome";
 
 export type Props = {
   repos: Repository[];
@@ -68,17 +68,16 @@ export function RepositoryView({ repos }: Props) {
   };
 
   return (
-    <main className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Repository Page</h1>
+    <main className="p-4 h-80">
+      <Welcome />
       <MultiSelectBox
         options={repos}
         selectedOptions={selectedRepos}
         onOptionToggle={toggleRepo}
       />
       {selectedReposList.length > 0 ? (
-        <div>
-          <h2 className="text-xl font-semibold mb-2">선택된 레포지토리:</h2>
-          <ul className="list-disc pl-5">
+        <div className="text-sm">
+          <ul className="flex flex-wrap gap-1.5">
             {selectedReposList.map((repo) => (
               <li key={repo.id} className="mb-2">
                 <p>{repo.name}</p>
@@ -88,13 +87,13 @@ export function RepositoryView({ repos }: Props) {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+            className="mt-4 w-full bg-indigo-500 p-2 text-white rounded hover:bg-indigo-600 disabled:bg-gray-400"
           >
-            {isSaving ? "저장 중..." : "완료"}
+            {isSaving ? "저장 중..." : "레포지토리 선택 완료"}
           </button>
         </div>
       ) : (
-        <p>선택된 레포지토리가 없습니다.</p>
+        <p className="text-sm">선택된 레포지토리가 없습니다.</p>
       )}
     </main>
   );
