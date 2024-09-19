@@ -1,9 +1,14 @@
 import NextAuth from "next-auth";
-import GitHub from "next-auth/providers/github";
+import GithubProvider from "next-auth/providers/github";
 import "next-auth/jwt";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [GitHub],
+  providers: [
+    GithubProvider({
+      clientId: process.env.GITHUB_ID as string,
+      clientSecret: process.env.GITHUB_SECRET as string,
+    }),
+  ],
   pages: {
     signIn: "/app",
   },
@@ -26,6 +31,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (typeof token.accessToken === "string") {
         session.accessToken = token.accessToken;
+        session.user.id = token.sub as string;
       }
       return session;
     },

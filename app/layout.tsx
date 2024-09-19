@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { Provider } from "jotai";
 import { inter } from "@/app/ui/fonts";
 import "@/app/ui/globals.css";
+import { connectToMongoDB } from "./lib/db";
+import ClientProvider from "./client-provider";
 
 export const metadata: Metadata = {
   title: {
@@ -16,9 +19,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  connectToMongoDB();
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <body className={`${inter.className} antialiased`}>
+        <ClientProvider>
+          <Provider>{children}</Provider>
+        </ClientProvider>
+      </body>
     </html>
   );
 }

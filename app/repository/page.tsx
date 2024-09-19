@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { createGitHubService } from "@/services/githubService";
-import { RepositoryView } from "./RepositoryPage";
+import { RepositoryView } from "./repository-view";
 import { Repository } from "@/services/githubService";
 
 export default async function Page() {

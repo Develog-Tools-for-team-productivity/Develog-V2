@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@octokit/rest": "^21.0.2",
+    "dotenv": "^16.4.5",
+    "jotai": "^2.9.3",
+    "mongodb": "^6.9.0",
+    "mongoose": "^8.6.3",
     "next": "14.2.11",
     "next-auth": "^5.0.0-beta.21",
     "react": "^18",
