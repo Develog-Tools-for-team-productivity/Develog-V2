@@ -31,7 +31,11 @@ export function RepositoryView({ repos }: Props) {
   );
 
   const handleSave = async () => {
-    if (!session?.user?.image || !session?.user?.name) {
+    if (
+      !session?.user?.image ||
+      !session?.user?.name ||
+      !session?.user?.email
+    ) {
       alert("로그인이 필요합니다.");
       return;
     }
@@ -43,6 +47,7 @@ export function RepositoryView({ repos }: Props) {
         {
           image: session?.user.image,
           name: session?.user.name,
+          email: session?.user.email,
         },
         selectedReposList.map((repo) => ({
           id: repo.id.toString(),

@@ -5,26 +5,27 @@ import User from "../lib/definitions";
 import { revalidatePath } from "next/cache";
 
 export async function saveUserData(
-  session: { image: string; name: string },
+  session: { email: string; name: string; image: string },
   selectedRepos: { id: string; name: string }[]
 ) {
   await connectToMongoDB();
 
   try {
-    const user = await User.findOne({ image: session.image });
+    const user = await User.findOne({ email: session.email });
 
     if (!user) {
       const newUser = new User({
-        image: session.image,
+        email: session.email,
         name: session.name,
+        image: session.image,
         repositories: selectedRepos,
       });
       await newUser.save();
-      revalidatePath("/");
-      return { message: "success" };
+    } else {
+      user.repositories = selectedRepos;
+      await user.save();
     }
-    user.repositories = selectedRepos;
-    await user.save();
+
     revalidatePath("/");
     return { message: "success" };
   } catch (error) {

@@ -1,8 +1,9 @@
 import mongoose, { Document, Model } from "mongoose";
 
 export interface IUser {
-  image: string;
+  email: string;
   name: string;
+  image: string;
   repositories: Array<{ id: string; name: string }>;
 }
 
@@ -13,6 +14,10 @@ export interface UserDocument extends Document, IUser {
 
 const userSchema = new mongoose.Schema(
   {
+    email: {
+      type: String,
+      required: true,
+    },
     name: {
       type: String,
       required: true,
