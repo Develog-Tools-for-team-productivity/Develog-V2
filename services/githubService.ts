@@ -1,4 +1,4 @@
-import { Octokit } from "@octokit/rest";
+import { Octokit } from "octokit";
 
 export function createGitHubService(accessToken: string) {
   const octokit = new Octokit({ auth: accessToken });
@@ -6,12 +6,15 @@ export function createGitHubService(accessToken: string) {
   return {
     async fetchRepositories() {
       try {
-        const { data: repos } = await octokit.repos.listForAuthenticatedUser({
+        const response = await octokit.request("GET /user/repos", {
           sort: "updated",
           per_page: 100,
+          headers: {
+            "X-GitHub-Api-Version": "2022-11-28",
+          },
         });
 
-        return repos.map((repo) => ({
+        return response.data.map((repo: Repository) => ({
           id: repo.id,
           name: repo.name,
         }));
