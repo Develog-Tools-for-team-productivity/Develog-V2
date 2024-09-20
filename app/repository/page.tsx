@@ -3,10 +3,16 @@ import { createGitHubService } from "@/services/githubService";
 import { RepositoryView } from "./repository-view";
 import { Repository } from "@/services/githubService";
 import LoginLayout from "../ui/login-layout";
+import { fetchUserRepository } from "../lib/action";
 
 export default async function Page() {
   const session = await auth();
   let repos: Repository[] = [];
+  let savedRepos: string[] | null = null;
+
+  if (session?.user?.email) {
+    savedRepos = await fetchUserRepository(session.user.email);
+  }
 
   if (session?.accessToken) {
     const githubService = createGitHubService(session.accessToken);
@@ -20,7 +26,7 @@ export default async function Page() {
       </div>
       <div className="flex justify-center basis-2/3">
         <div className="w-2/6 flex flex-col justify-center">
-          <RepositoryView repos={repos} />
+          <RepositoryView repos={repos} savedRepos={savedRepos || []} />
         </div>
       </div>
     </main>

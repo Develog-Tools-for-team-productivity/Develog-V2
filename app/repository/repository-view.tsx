@@ -6,17 +6,28 @@ import { MultiSelectBox } from "../ui/multi-selectbox";
 import { Repository } from "@/services/githubService";
 import { useSession } from "next-auth/react";
 import { saveUserData } from "../lib/action";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Welcome from "../ui/welcome";
 
 export type Props = {
   repos: Repository[];
+  savedRepos: string[] | null;
 };
 
-export function RepositoryView({ repos }: Props) {
+export function RepositoryView({ repos, savedRepos }: Props) {
   const [selectedRepos, setSelectedRepos] = useAtom(selectedReposAtom);
   const { data: session } = useSession();
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (savedRepos) {
+      const savedRepoIds = repos
+        .filter((repo) => savedRepos.includes(repo.name))
+        .map((repo) => repo.id);
+
+      setSelectedRepos(savedRepoIds);
+    }
+  }, [savedRepos, repos, setSelectedRepos]);
 
   const toggleRepo = async (repoId: number) => {
     const newSelectedRepos = selectedRepos.includes(repoId)
@@ -25,6 +36,10 @@ export function RepositoryView({ repos }: Props) {
 
     setSelectedRepos(newSelectedRepos);
   };
+
+  const availableRepos = repos.filter(
+    (repo) => !savedRepos?.includes(repo.name)
+  );
 
   const selectedReposList = repos.filter((repo) =>
     selectedRepos.includes(repo.id)
@@ -49,10 +64,7 @@ export function RepositoryView({ repos }: Props) {
           name: session?.user.name,
           email: session?.user.email,
         },
-        selectedReposList.map((repo) => ({
-          id: repo.id.toString(),
-          name: repo.name,
-        }))
+        selectedReposList.map((repo) => repo.name)
       );
       if (result.message === "success") {
         alert("선택한 레포지토리가 저장되었습니다.");
@@ -76,7 +88,7 @@ export function RepositoryView({ repos }: Props) {
     <main className="p-4 h-80">
       <Welcome />
       <MultiSelectBox
-        options={repos}
+        options={availableRepos}
         selectedOptions={selectedRepos}
         onOptionToggle={toggleRepo}
       />

@@ -4,9 +4,21 @@ import { connectToMongoDB } from "@/app/lib/db";
 import User from "../lib/definitions";
 import { revalidatePath } from "next/cache";
 
+export async function fetchUserRepository(email: string) {
+  await connectToMongoDB();
+
+  try {
+    const user = await User.findOne({ email });
+    return user ? user.repositories : null;
+  } catch (error) {
+    console.error("저장된 레포지토리를 가져오지 못했습니다:", error);
+    throw error;
+  }
+}
+
 export async function saveUserData(
   session: { email: string; name: string; image: string },
-  selectedRepos: { id: string; name: string }[]
+  selectedRepos: string[]
 ) {
   await connectToMongoDB();
 

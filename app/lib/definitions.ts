@@ -4,7 +4,7 @@ export interface IUser {
   email: string;
   name: string;
   image: string;
-  repositories: Array<{ id: string; name: string }>;
+  repositories: string[];
 }
 
 export interface UserDocument extends Document, IUser {
@@ -27,12 +27,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    repositories: [
-      {
-        id: String,
-        name: String,
-      },
-    ],
+    repositories: [String],
   },
   {
     timestamps: true,
