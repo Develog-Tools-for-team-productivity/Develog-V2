@@ -94,7 +94,8 @@ export function RepositoryView({ repos, savedRepos }: Props) {
       />
       {selectedReposList.length > 0 ? (
         <div className="text-sm">
-          <ul className="flex flex-wrap gap-1.5">
+          <b>선택된 레포지토리:</b>
+          <ul className="flex flex-wrap gap-1.5 mt-1">
             {selectedReposList.map((repo) => (
               <li key={repo.id} className="mb-2">
                 <p>{repo.name}</p>
