@@ -1,6 +1,6 @@
-import LoginLayout from "./ui/login-layout";
-import { SignIn } from "./ui/signin-button";
-import Welcome from "./ui/welcome";
+import LoginLayout from "./view/login/login-layout";
+import { SignIn } from "./view/login/signin-button";
+import Welcome from "./view/login/welcome";
 
 export default function Home() {
   return (

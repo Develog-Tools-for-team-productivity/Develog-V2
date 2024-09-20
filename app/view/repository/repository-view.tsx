@@ -2,12 +2,12 @@
 
 import { useAtom } from "jotai";
 import { selectedReposAtom } from "@/store";
-import { MultiSelectBox } from "../ui/multi-selectbox";
+import { MultiSelectBox } from "./multi-selectbox";
 import { Repository } from "@/services/githubService";
 import { useSession } from "next-auth/react";
-import { saveUserData } from "../actions/userAction";
+import { saveUserData } from "../../actions/userAction";
 import { useState, useEffect } from "react";
-import Welcome from "../ui/welcome";
+import Welcome from "../login/welcome";
 
 export type Props = {
   repos: Repository[];
