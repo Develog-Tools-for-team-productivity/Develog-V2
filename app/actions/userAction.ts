@@ -1,19 +1,17 @@
 "use server";
 
 import { connectToMongoDB } from "@/app/lib/db";
-import User from "../lib/definitions";
+import User from "../models/userModel";
+import {
+  getUserRepository,
+  saveUser,
+  updateUser,
+} from "../controllers/userController";
 import { revalidatePath } from "next/cache";
 
-export async function fetchUserRepository(email: string) {
+export async function fetchUserRepositories(email: string) {
   await connectToMongoDB();
-
-  try {
-    const user = await User.findOne({ email });
-    return user ? user.repositories : null;
-  } catch (error) {
-    console.error("저장된 레포지토리를 가져오지 못했습니다:", error);
-    throw error;
-  }
+  return getUserRepository(email);
 }
 
 export async function saveUserData(
@@ -26,16 +24,9 @@ export async function saveUserData(
     const user = await User.findOne({ email: session.email });
 
     if (!user) {
-      const newUser = new User({
-        email: session.email,
-        name: session.name,
-        image: session.image,
-        repositories: selectedRepos,
-      });
-      await newUser.save();
+      saveUser(session, selectedRepos);
     } else {
-      user.repositories = selectedRepos;
-      await user.save();
+      updateUser(session, selectedRepos);
     }
 
     revalidatePath("/");

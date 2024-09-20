@@ -5,7 +5,7 @@ import { selectedReposAtom } from "@/store";
 import { MultiSelectBox } from "../ui/multi-selectbox";
 import { Repository } from "@/services/githubService";
 import { useSession } from "next-auth/react";
-import { saveUserData } from "../lib/action";
+import { saveUserData } from "../actions/userAction";
 import { useState, useEffect } from "react";
 import Welcome from "../ui/welcome";
 

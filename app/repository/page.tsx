@@ -3,7 +3,7 @@ import { createGitHubService } from "@/services/githubService";
 import { RepositoryView } from "./repository-view";
 import { Repository } from "@/services/githubService";
 import LoginLayout from "../ui/login-layout";
-import { fetchUserRepository } from "../lib/action";
+import { fetchUserRepositories } from "../actions/userAction";
 
 export default async function Page() {
   const session = await auth();
@@ -11,7 +11,7 @@ export default async function Page() {
   let savedRepos: string[] | null = null;
 
   if (session?.user?.email) {
-    savedRepos = await fetchUserRepository(session.user.email);
+    savedRepos = await fetchUserRepositories(session.user.email);
   }
 
   if (session?.accessToken) {
