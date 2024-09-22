@@ -1,11 +1,9 @@
 "use server";
 
 import { connectToMongoDB } from "@/app/lib/db";
-import User from "../models/userModel";
 import {
   getUserRepository,
-  saveUser,
-  updateUser,
+  saveUserGitHubInfo,
 } from "../controllers/userController";
 import { revalidatePath } from "next/cache";
 
@@ -16,23 +14,21 @@ export async function fetchUserRepositories(email: string) {
 
 export async function saveUserData(
   session: { email: string; name: string; image: string },
-  selectedRepos: string[]
+  selectedRepos: string[],
+  accessToken: string | undefined
 ) {
   await connectToMongoDB();
 
   try {
-    const user = await User.findOne({ email: session.email });
-
-    if (!user) {
-      saveUser(session, selectedRepos);
-    } else {
-      updateUser(session, selectedRepos);
-    }
-
+    const result = await saveUserGitHubInfo(
+      session,
+      selectedRepos,
+      accessToken
+    );
     revalidatePath("/");
-    return { message: "success" };
+    return result;
   } catch (error) {
-    console.error("Error in saveUserData:", error);
-    return { message: "Error saving repositories" };
+    console.error("user 데이터 저장 중 에러가 발생했습니다:", error);
+    return { message: "데이터 저장 중 에러가 발생했습니다" };
   }
 }

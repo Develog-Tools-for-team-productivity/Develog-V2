@@ -1,13 +1,13 @@
 import { auth } from "@/auth";
 import { createGitHubService } from "@/services/githubService";
 import { RepositoryView } from "../view/repository/repository-view";
-import { Repository } from "@/services/githubService";
-import LoginLayout from "../view/login/login-layout";
+import { RepositoryTypes } from "../types/repositoryTypes";
 import { fetchUserRepositories } from "../actions/userAction";
+import LoginLayout from "../view/login/login-layout";
 
 export default async function Page() {
   const session = await auth();
-  let repos: Repository[] = [];
+  let repos: RepositoryTypes[] = [];
   let savedRepos: string[] | null = null;
 
   if (session?.user?.email) {

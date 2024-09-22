@@ -3,14 +3,14 @@
 import { useAtom } from "jotai";
 import { selectedReposAtom } from "@/store";
 import { MultiSelectBox } from "./multi-selectbox";
-import { Repository } from "@/services/githubService";
+import { RepositoryTypes } from "@/app/types/repositoryTypes";
 import { useSession } from "next-auth/react";
 import { saveUserData } from "../../actions/userAction";
 import { useState, useEffect } from "react";
 import Welcome from "../login/welcome";
 
 export type Props = {
-  repos: Repository[];
+  repos: RepositoryTypes[];
   savedRepos: string[] | null;
 };
 
@@ -24,7 +24,6 @@ export function RepositoryView({ repos, savedRepos }: Props) {
       const savedRepoIds = repos
         .filter((repo) => savedRepos.includes(repo.name))
         .map((repo) => repo.id);
-
       setSelectedRepos(savedRepoIds);
     }
   }, [savedRepos, repos, setSelectedRepos]);
@@ -33,13 +32,8 @@ export function RepositoryView({ repos, savedRepos }: Props) {
     const newSelectedRepos = selectedRepos.includes(repoId)
       ? selectedRepos.filter((id) => id !== repoId)
       : [...selectedRepos, repoId];
-
     setSelectedRepos(newSelectedRepos);
   };
-
-  const availableRepos = repos.filter(
-    (repo) => !savedRepos?.includes(repo.name)
-  );
 
   const selectedReposList = repos.filter((repo) =>
     selectedRepos.includes(repo.id)
@@ -58,17 +52,19 @@ export function RepositoryView({ repos, savedRepos }: Props) {
     setIsSaving(true);
 
     try {
+      const selectedRepoNames = selectedReposList.map((repo) => repo.fullName);
+
       const result = await saveUserData(
         {
           image: session?.user.image,
           name: session?.user.name,
           email: session?.user.email,
         },
-        selectedReposList.map((repo) => repo.name)
+        selectedRepoNames,
+        session?.accessToken
       );
       if (result.message === "success") {
         alert("선택한 레포지토리가 저장되었습니다.");
-        setSelectedRepos([]);
       } else {
         throw new Error(result.message);
       }
@@ -88,7 +84,7 @@ export function RepositoryView({ repos, savedRepos }: Props) {
     <main className="p-4 h-80">
       <Welcome />
       <MultiSelectBox
-        options={availableRepos}
+        options={repos}
         selectedOptions={selectedRepos}
         onOptionToggle={toggleRepo}
       />

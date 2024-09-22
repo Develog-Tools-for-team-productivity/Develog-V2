@@ -1,64 +1,78 @@
+import { connectToMongoDB } from "../lib/db";
+import { revalidatePath } from "next/cache";
+import { fetchPullRequests } from "@/services/githubService";
 import User from "../models/userModel";
+import Repository from "../models/repositoryModel";
+import PullRequest from "../models/pullRequestModel";
 
 export async function getUserRepository(email: string) {
-  try {
-    const user = await User.findOne({ email });
-    return user ? user.repositories : null;
-  } catch (error) {
-    console.error("저장된 레포지토리를 가져오지 못했습니다:", error);
-    throw error;
-  }
+  const user = await User.findOne({ email }).populate("repositories");
+  return user ? user.repositories : null;
 }
 
-export async function saveUser(
+export async function saveUserGitHubInfo(
   session: { email: string; name: string; image: string },
-  selectedRepos: string[]
+  selectedRepos: string[],
+  accessToken: string | undefined
 ) {
+  await connectToMongoDB();
+
   try {
-    const newUser = new User({
-      email: session.email,
-      name: session.name,
-      image: session.image,
-      repositories: selectedRepos,
-    });
+    let user = await User.findOne({ email: session.email });
 
-    const savedUser = await newUser.save();
-
-    if (!savedUser) {
-      throw new Error("사용자를 저장하지 못했습니다.");
+    if (!user) {
+      user = new User({
+        email: session.email,
+        name: session.name,
+        image: session.image,
+      });
+    } else {
+      user.name = session.name;
+      user.image = session.image;
     }
 
-    return savedUser;
-  } catch (error) {
-    console.error("사용자를 저장하지 못했습니다:", error);
-    throw error;
-  }
-}
+    const updatedRepos = await Promise.all(
+      selectedRepos.map(async (repoName) => {
+        const [owner, repo] = repoName.split("/");
+        let repository = await Repository.findOneAndUpdate(
+          { name: repo, owner, userId: user._id },
+          { name: repo, owner, userId: user._id },
+          { upsert: true, new: true }
+        );
 
-export async function updateUser(
-  session: { email: string; name: string; image: string },
-  selectedRepos: string[]
-) {
-  try {
-    const updatedUser = await User.findOneAndUpdate(
-      { email: session.email },
-      {
-        $set: {
-          image: session.image,
-          name: session.name,
-          repositories: selectedRepos,
-        },
-      },
-      { upsert: true, new: true }
+        if (accessToken) {
+          const pullRequests = await fetchPullRequests(
+            accessToken,
+            owner,
+            repo
+          );
+          await Promise.all(
+            pullRequests.map((pr) =>
+              PullRequest.findOneAndUpdate(
+                { repositoryId: repository._id, prId: pr.prId },
+                { ...pr, repositoryId: repository._id },
+                { upsert: true, new: true }
+              )
+            )
+          );
+        }
+
+        return repository.name;
+      })
     );
 
-    if (!updatedUser) {
-      throw new Error("사용자 데이터 업데이트를 실패했습니다.");
-    }
+    user.repositories = updatedRepos;
+    await user.save();
 
-    return updatedUser;
+    revalidatePath("/");
+    return { message: "success" };
   } catch (error) {
-    console.error("사용자 데이터 업데이트를 실패했습니다:", error);
-    throw error;
+    console.error("user 데이터 저장 중 에러가 발생했습니다:", error);
+    return { message: "데이터 저장 중 에러가 발생했습니다" };
   }
+}
+
+export async function fetchUserRepositories(email: string) {
+  await connectToMongoDB();
+  return getUserRepository(email);
 }
