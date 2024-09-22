@@ -64,7 +64,7 @@ export async function saveUserGitHubInfo(
           );
         }
 
-        return repository._id;
+        return repository.name;
       })
     );
 
