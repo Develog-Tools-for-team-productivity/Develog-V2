@@ -4,11 +4,14 @@ const pullRequestSchema = new mongoose.Schema({
   repositoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Repository" },
   prId: Number,
   title: String,
-  state: String,
-  createdAt: Date,
-  updatedAt: Date,
-  closedAt: Date,
+  author: String,
+  firstCommitTime: Date,
+  commitCount: Number,
   mergedAt: Date,
+  createdAt: Date,
+  labels: { name: String },
+  hasBugLabel: Boolean,
+  isMergedToMain: Boolean,
 });
 
 const PullRequest =

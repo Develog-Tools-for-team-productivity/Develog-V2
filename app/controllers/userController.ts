@@ -31,6 +31,12 @@ export async function saveUserGitHubInfo(
       user.image = session.image;
     }
 
+    if (!accessToken) {
+      throw new Error(
+        "레포지토리 데이터를 가져오려면 액세스 토큰이 필요합니다."
+      );
+    }
+
     const updatedRepos = await Promise.all(
       selectedRepos.map(async (repoName) => {
         const [owner, repo] = repoName.split("/");
@@ -46,6 +52,7 @@ export async function saveUserGitHubInfo(
             owner,
             repo
           );
+
           await Promise.all(
             pullRequests.map((pr) =>
               PullRequest.findOneAndUpdate(
@@ -57,7 +64,7 @@ export async function saveUserGitHubInfo(
           );
         }
 
-        return repository.name;
+        return repository._id;
       })
     );
 
