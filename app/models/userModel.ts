@@ -1,10 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import { IUser } from "../types/userTypes";
-
-export interface UserDocument extends Document, IUser {
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { UserDocument } from "../types/userTypes";
 
 const userSchema = new mongoose.Schema(
   {
